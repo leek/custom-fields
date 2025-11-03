@@ -187,4 +187,11 @@ class CustomField extends Model
 
         return 'custom_fields.'.$this->code;
     }
+
+    public function isRequired(): bool
+    {
+        return $this->validation_rules
+            ->toCollection()
+            ->contains('name', 'required');
+    }
 }

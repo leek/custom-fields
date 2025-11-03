@@ -20,7 +20,7 @@
 
         {{
             $this->editAction()->icon(false)
-                            ->label(new HtmlString('<span class="truncate flex">'.$field->name.'</span>'))
+                            ->label(new HtmlString('<span class="truncate flex">'.$field->name.($field->isRequired() ? ' <span style="color: red;">*</span>' : '').'</span>'))
                             ->extraAttributes(['class' => 'truncate', 'x-tooltip.raw' => $field->name])
                             ->link()
         }}
