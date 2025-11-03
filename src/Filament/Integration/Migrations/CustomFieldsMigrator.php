@@ -18,6 +18,8 @@ use Relaticle\CustomFields\Facades\Entities;
 use Relaticle\CustomFields\FeatureSystem\FeatureManager;
 use Relaticle\CustomFields\Models\CustomField;
 use Throwable;
+use Relaticle\CustomFields\Models\Scopes\CustomFieldsActivableScope;
+use Relaticle\CustomFields\Services\TenantContextService;
 
 class CustomFieldsMigrator implements CustomsFieldsMigrators
 {
@@ -30,15 +32,21 @@ class CustomFieldsMigrator implements CustomsFieldsMigrators
     public function setTenantId(int|string|null $tenantId = null): void
     {
         $this->tenantId = $tenantId;
+
+        TenantContextService::setTenantId($this->tenantId);
     }
 
     public function find(string $model, string $code): CustomFieldsMigrator
     {
         $this->customField = CustomFields::newCustomFieldModel()
             ->query()
+            ->withoutGlobalScope(CustomFieldsActivableScope::class)
             ->forMorphEntity((Entities::getEntity($model)?->getAlias()) ?? $model)
             ->where('code', $code)
-            ->firstOrFail();
+            ->firstOrFail()
+        ;
+
+        $this->customField->load('section');
 
         $this->customFieldData = CustomFieldData::from($this->customField);
 
@@ -182,6 +190,9 @@ class CustomFieldsMigrator implements CustomsFieldsMigrators
             if (FeatureManager::isEnabled(CustomFieldsFeature::SYSTEM_MULTI_TENANCY)) {
                 $updateData[config('custom-fields.database.column_names.tenant_foreign_key')] = $this->tenantId;
             }
+
+            unset($updateData['section']);
+            unset($updateData['options']);
 
             $this->customField->update($updateData);
 

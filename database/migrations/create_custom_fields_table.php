@@ -108,7 +108,8 @@ return new class extends Migration
 
             $table->foreignIdFor(CustomFields::customFieldModel())
                 ->constrained()
-                ->cascadeOnDelete();
+                ->cascadeOnDelete()
+            ;
 
             $table->string('name')->nullable();
             $table->unsignedBigInteger('sort_order')->nullable();
@@ -135,7 +136,8 @@ return new class extends Migration
             $table->morphs('entity');
             $table->foreignIdFor(CustomField::class)
                 ->constrained()
-                ->cascadeOnDelete();
+                ->cascadeOnDelete()
+            ;
 
             $table->text('string_value')->nullable();
             $table->longText('text_value')->nullable();

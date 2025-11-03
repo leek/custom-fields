@@ -55,7 +55,7 @@ class CustomFieldOption extends Model
             }
 
             // Check if encryption is enabled
-            if ($option->customField && $option->customField->settings->encrypted) {
+            if ($option->customField?->settings?->encrypted) {
                 $option->attributes['name'] = Crypt::encryptString($rawName);
             }
         });

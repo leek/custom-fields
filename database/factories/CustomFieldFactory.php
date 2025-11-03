@@ -43,6 +43,7 @@ final class CustomFieldFactory extends Factory
             'validation_rules' => [],
             'active' => true,
             'system_defined' => false,
+            'uses_entity_column' => false,
             'settings' => new CustomFieldSettingsData(
                 encrypted: false
             ),
