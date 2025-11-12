@@ -13,7 +13,7 @@ final class FormContainer extends Grid
 
     private array $only = [];
 
-    public static function make(array|int|null $columns = 1): static
+    public static function make(array|int|null $columns = 12): static
     {
         $container = new self($columns);
 

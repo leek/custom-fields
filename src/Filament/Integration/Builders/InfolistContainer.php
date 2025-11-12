@@ -20,7 +20,7 @@ final class InfolistContainer extends Grid
 
     private bool $withoutSections = false;
 
-    public static function make(array|int|null $columns = 1): static
+    public static function make(array|int|null $columns = 12): static
     {
         $container = new self($columns);
 

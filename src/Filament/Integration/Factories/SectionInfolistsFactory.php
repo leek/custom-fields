@@ -16,11 +16,13 @@ final class SectionInfolistsFactory
     {
         return match ($customFieldSection->type) {
             CustomFieldSectionType::SECTION => Section::make($customFieldSection->name)
+                ->columns(12)
                 ->description($customFieldSection->description),
 
-            CustomFieldSectionType::FIELDSET => Fieldset::make($customFieldSection->name),
+            CustomFieldSectionType::FIELDSET => Fieldset::make($customFieldSection->name)
+                ->columns(12),
 
-            CustomFieldSectionType::HEADLESS => Grid::make($customFieldSection->column_span ?? 1),
+            CustomFieldSectionType::HEADLESS => Grid::make($customFieldSection->column_span ?? 12),
         };
     }
 }
