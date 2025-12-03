@@ -13,6 +13,8 @@ final class FormContainer extends Grid
 
     private array $only = [];
 
+    private bool $withoutSections = false;
+
     public static function make(array|int|null $columns = 12): static
     {
         $container = new self($columns);
@@ -44,6 +46,13 @@ final class FormContainer extends Grid
         return $this;
     }
 
+    public function withoutSections(bool $withoutSections = true): static
+    {
+        $this->withoutSections = $withoutSections;
+
+        return $this;
+    }
+
     private function generateSchema(): array
     {
         // Inline priority: explicit ?? record ?? model class
@@ -57,6 +66,7 @@ final class FormContainer extends Grid
 
         return $builder
             ->forModel($model)
+            ->withoutSections($this->withoutSections)
             ->only($this->only)
             ->except($this->except)
             ->values()

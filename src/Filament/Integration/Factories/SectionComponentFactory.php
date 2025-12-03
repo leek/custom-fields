@@ -16,9 +16,11 @@ final class SectionComponentFactory
     {
         return match ($customFieldSection->type) {
             CustomFieldSectionType::SECTION => Section::make($customFieldSection->name)
+                ->columnSpanFull()
                 ->description($customFieldSection->description)
                 ->columns(12),
             CustomFieldSectionType::FIELDSET => Fieldset::make('custom_fields.'.$customFieldSection->code)
+                ->columnSpanFull()
                 ->label($customFieldSection->name)
                 ->columns(12),
             CustomFieldSectionType::HEADLESS => Grid::make(12),
