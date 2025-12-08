@@ -26,6 +26,7 @@ use Relaticle\CustomFields\Models\Scopes\SortOrderScope;
 use Relaticle\CustomFields\Models\Scopes\TenantScope;
 use Relaticle\CustomFields\Observers\CustomFieldObserver;
 use Relaticle\CustomFields\QueryBuilders\CustomFieldQueryBuilder;
+use Spatie\LaravelData\Data;
 use Spatie\LaravelData\DataCollection;
 
 /**
@@ -113,11 +114,11 @@ class CustomField extends Model
         return [
             'type' => 'string',
             'width' => CustomFieldWidth::class,
-            'validation_rules' => DataCollection::class.':'.ValidationRuleData::class.',default',
+            'validation_rules' => DataCollection::class . ':' . ValidationRuleData::class . ',default',
             'active' => 'boolean',
             'system_defined' => 'boolean',
             'uses_entity_column' => 'boolean',
-            'settings' => CustomFieldSettingsData::class.':default',
+            'settings' => CustomFieldSettingsData::class . ':default',
         ];
     }
 
@@ -153,7 +154,7 @@ class CustomField extends Model
     public function typeData(): Attribute
     {
         return Attribute::make(
-            get: fn (mixed $value, array $attributes): ?FieldTypeData => CustomFieldsType::getFieldType($attributes['type'])
+            get: fn(mixed $value, array $attributes): ?FieldTypeData => CustomFieldsType::getFieldType($attributes['type'])
         );
     }
 
@@ -185,7 +186,7 @@ class CustomField extends Model
             return $this->code;
         }
 
-        return 'custom_fields.'.$this->code;
+        return 'custom_fields.' . $this->code;
     }
 
     public function isRequired(): bool
@@ -193,5 +194,33 @@ class CustomField extends Model
         return $this->validation_rules
             ->toCollection()
             ->contains('name', 'required');
+    }
+
+    /**
+     * Get field-type-specific settings as a typed Data object.
+     *
+     * This retrieves settings from the `settings.additional.type_settings` path
+     * and deserializes them using the field type's configured settings data class.
+     *
+     * @return Data|null The typed settings data object, or null if not configured
+     */
+    public function getTypeSettings(): ?Data
+    {
+        $typeData = $this->typeData;
+
+        if ($typeData === null || $typeData->settingsDataClass === null) {
+            return null;
+        }
+
+        $typeSettingsData = $this->settings->additional['type_settings'] ?? [];
+
+        if ($typeSettingsData === []) {
+            return null;
+        }
+
+        /** @var class-string<Data> $dataClass */
+        $dataClass = $typeData->settingsDataClass;
+
+        return $dataClass::from($typeSettingsData);
     }
 }
