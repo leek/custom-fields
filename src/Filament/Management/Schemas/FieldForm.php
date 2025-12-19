@@ -36,34 +36,6 @@ use Relaticle\CustomFields\Services\TenantContextService;
 class FieldForm implements FormInterface
 {
     /**
-     * Get type-specific settings schema components.
-     *
-     * @return array<int, Component>
-     */
-    private static function getTypeSettingsSchema(): array
-    {
-        $components = [];
-
-        foreach (CustomFieldsType::toCollection() as $fieldTypeData) {
-            if ($fieldTypeData->settingsSchema === null) {
-                continue;
-            }
-
-            $schema = is_callable($fieldTypeData->settingsSchema)
-                ? ($fieldTypeData->settingsSchema)()
-                : $fieldTypeData->settingsSchema;
-
-            foreach ($schema as $component) {
-                $components[] = $component->visible(
-                    fn (Get $get): bool => $get('type') === $fieldTypeData->key
-                );
-            }
-        }
-
-        return $components;
-    }
-
-    /**
      * @return array<int, Component>
      *
      * @throws Exception
@@ -407,66 +379,7 @@ class FieldForm implements FormInterface
                                                 'multi_select',
                                             ])
                                     ),
-                                // Multi-value settings
-                                Toggle::make('settings.allow_multiple')
-                                    ->inline(false)
-                                    ->live()
-                                    ->label(__('custom-fields::custom-fields.field.form.allow_multiple'))
-                                    ->helperText(__('custom-fields::custom-fields.field.form.allow_multiple_help'))
-                                    ->visible(
-                                        fn (Get $get): bool => FeatureManager::isEnabled(CustomFieldsFeature::FIELD_MULTI_VALUE) &&
-                                            CustomFieldsType::getFieldType($get('type'))?->supportsMultiValue === true
-                                    )
-                                    ->afterStateUpdated(function (Set $set, bool $state): void {
-                                        if ($state) {
-                                            $set('settings.max_values', 2);
-                                        }
-                                    })
-                                    ->default(false),
-                                TextInput::make('settings.max_values')
-                                    ->label(
-                                        __(
-                                            'custom-fields::custom-fields.field.form.max_values'
-                                        )
-                                    )
-                                    ->helperText(
-                                        __(
-                                            'custom-fields::custom-fields.field.form.max_values_help'
-                                        )
-                                    )
-                                    ->numeric()
-                                    ->minValue(1)
-                                    ->maxValue(20)
-                                    ->default(5)
-                                    ->visible(
-                                        fn (
-                                            Get $get
-                                        ): bool => FeatureManager::isEnabled(CustomFieldsFeature::FIELD_MULTI_VALUE) &&
-                                            CustomFieldsType::getFieldType($get('type'))?->supportsMultiValue === true &&
-                                            $get('settings.allow_multiple') === true
-                                    ),
-                                // Uniqueness constraint
-                                Toggle::make('settings.unique_per_entity_type')
-                                    ->inline(false)
-                                    ->label(
-                                        __(
-                                            'custom-fields::custom-fields.field.form.unique_per_entity_type'
-                                        )
-                                    )
-                                    ->helperText(
-                                        __(
-                                            'custom-fields::custom-fields.field.form.unique_per_entity_type_help'
-                                        )
-                                    )
-                                    ->visible(
-                                        fn (Get $get): bool => FeatureManager::isEnabled(CustomFieldsFeature::FIELD_UNIQUE_VALUE) &&
-                                            CustomFieldsType::getFieldType($get('type'))?->supportsUniqueConstraint === true
-                                    )
-                                    ->default(false),
                             ]),
-
-                        // Dynamic type-specific settings from field type definition
-                        ...self::getTypeSettingsSchema(),
 
                         Select::make('options_lookup_type')
                             ->label(
